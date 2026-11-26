@@ -21,32 +21,37 @@ import mylibrary
 
 
 st.write("Tales of Lanfang Tickets")
+# Create one number box per ticket type by looping over the PRICES dictionary.
+# The user's answers are stored in counts, e.g. {"adult": 2, "child": 1, "senior": 0, "student": 0}.
+# Adding a new ticket type to PRICES automatically adds a new box here.
 counts = {}
 for category in mylibrary.PRICES:
     counts[category]=st.number_input(f"{category.title()} Tickets", 
                                      min_value=0, 
                                      max_value=10, 
                                      step=1) 
-                                    
+# Tell the user straight away if their group qualifies for the family discount.                                   
 if mylibrary.is_family(counts["adult"], counts["child"]):
     st.write("You are eligible for a family discount of 10%")
+# Slider for the number of audio guides (0 to 3).
 guides=st.slider("How many audio guides do you want to rent?",
                     min_value=0, 
                     max_value=3, 
                     step=1)
+# Radio button to choose peak or off-peak tickets.
 ticket_type=st.radio("Type of Ticket", ["Peak", "Off-Peak"])
-residency=st.radio("Residency", ["Local", "Foreign"])
-
+# The receipt is only calculated after the user clicks the button.
 if st.button("Get Total"):
     visitors= sum(counts.values())
+    # Input validation: a booking needs at least one ticket.
     if visitors==0:
         st.warning("Please buy at least one ticket")
     else:
+         # ticket_type == "Peak" gives True or False, which is passed in as peak.
         rows, total=mylibrary.build_receipt(counts,
                                             peak=ticket_type=="Peak",
-                                            foreign=residency=="Foreign",
                                             guides=guides)
-
+# Show the itemised receipt as a table, then the total price.
         st.subheader("Receipt")
         st.table(rows)
         st.write(f"Total Price: ${total:.2f}")
